@@ -1,8 +1,27 @@
 {
-  "name":"extreme-pump-fun","version":"0.1.0","private":true,
-  "description":"Extreme Pump.Fun Solana token launchpad core","type":"module",
-  "scripts":{"build":"tsc -p tsconfig.json","test":"npm run build && node --test dist/**/*.test.js","typecheck":"tsc --noEmit"},
-  "dependencies":{"@raydium-io/raydium-sdk-v2":"^0.2.40","@solana/web3.js":"^1.98.4"},
-  "devDependencies":{"@types/node":"^22.15.30","typescript":"^5.8.3"},
-  "engines":{"node":">=20"}
+  "name": "extreme-pump-fun",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extreme Pump.Fun Solana token launchpad core",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/**/*.test.js",
+    "typecheck": "tsc --noEmit",
+    "raydium:devnet": "tsx scripts/raydium/create-cpmm-pool.ts"
+  },
+  "dependencies": {
+    "@raydium-io/raydium-sdk-v2": "^0.2.40",
+    "@solana/web3.js": "^1.98.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "typescript": "^5.8.3",
+    "tsx": "^4.19.3",
+    "bn.js": "^5.2.2",
+    "@types/bn.js": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }
