@@ -1,0 +1,20 @@
+[package]
+name = "extreme_pump_fun"
+version = "0.1.0"
+description = "Extreme Pump.Fun Solana launchpad program scaffold"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "extreme_pump_fun"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang = "0.31.1"
