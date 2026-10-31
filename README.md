@@ -1,51 +1,50 @@
 # Extreme Pump.Fun
 
-An original Solana token-launch platform project with planned Raydium liquidity migration.
-This repository is an early engineering scaffold, not a production-ready launchpad.
+An original Solana token-launchpad project. This repository contains an early Anchor
+program draft, a responsive React/Vite wallet-connected web shell, fee/curve simulation
+helpers, a guarded Raydium SDK V2 devnet CPMM example, and deployment/security docs.
 
-## Foundation added
+**This is not production-ready and must not be used to accept public funds.**
 
-- Strict TypeScript project setup.
-- Explicit basis-point fee accounting.
-- Separate 1% platform fee and configurable creator fee.
-- Integer-only constant-product quote helper for local simulation.
-- Raydium SDK V2 dependency for the future migration adapter.
-
-## Fee model
-
-Both fees are calculated independently against gross input:
-
-- Platform fee: 100 bps (1%).
-- Creator fee: configurable using CREATOR_FEE_BPS. The example value is 100 bps (1%),
-  provided as a starting point and not a finalized business or legal decision.
-- Net curve input: gross input minus both fees.
-
-Fee collection, authority checks, rounding, refunds, and withdrawals must be enforced
-by the on-chain program, not trusted to the frontend.
-
-## Development
+## Web app
 
 Requirements: Node.js 20+ and npm.
 
     npm install
-    npm run typecheck
-    npm run build
+    cp .env.example .env
+    npm run web:dev
+    npm run web:build
 
-Copy .env.example to .env. Never commit private keys, seed phrases, RPC credentials,
-or production authority secrets.
+The web shell supports Phantom and Solflare wallet connection on devnet. Token
+discovery, token creation, and trading are intentionally not enabled until a verified
+program deployment, generated IDL/client, indexer, and end-to-end tests exist.
 
-## Planned milestones
+For static hosting, the included vercel.json builds dist-web. Configure
+VITE_SOLANA_CLUSTER, VITE_RPC_URL, and (only after verification)
+VITE_PROGRAM_ID in the hosting provider's environment settings.
 
-1. Audited Anchor program: token creation, bonding curve state, buy/sell, fee vaults,
-   creator/platform fee withdrawals, pause controls, and account constraints.
-2. API/indexer: transaction status, token metadata, trades, holders, and live curve data.
-3. Web app: wallet adapter, launch form, token discovery, chart/trade panel, creator dashboard.
-4. Raydium migration adapter: detect graduation, calculate liquidity, create the approved
-   pool type with Raydium SDK V2, and verify resulting pool state.
-5. Devnet integration tests, security review, and staged mainnet rollout.
+## Anchor program
 
-## Safety status
+The Anchor program draft contains:
+- PDA-derived platform config, curve state, SOL vault, and curve-owned SPL token vault.
+- 1% platform fee and a separate per-curve creator fee.
+- Buy/sell constant-product quote calculations with checked integer arithmetic.
+- Minimum output and transaction deadline checks.
+- Creator fee update authorization and admin pause.
 
-No mainnet deployment, wallet custody, live trading, or automatic liquidity migration
-is enabled. The quote helper is simulation-only. Production behavior requires an audited
-on-chain implementation and devnet integration tests.
+The program ID is deliberately a placeholder. Generate a dedicated keypair, update
+declare_id! and Anchor.toml, then build and test using docs/DEVNET_DEPLOYMENT.md.
+Do not commit keypairs.
+
+## Raydium
+
+The custom curve is not Raydium LaunchLab. The Raydium SDK V2 CPMM example creates
+a devnet pool from balances already held by the configured signer. It does not yet
+migrate this program's PDA-held reserves or implement graduation. See
+docs/RAYDIUM_MIGRATION.md.
+
+## Security and release
+
+Read docs/SECURITY_REVIEW.md and docs/PRODUCTION_READINESS.md. These are engineering
+checklists, not an independent audit. No successful build, validator test, deployment,
+or independent audit is claimed. Mainnet use is blocked pending the listed release gates.
