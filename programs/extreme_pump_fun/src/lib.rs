@@ -254,7 +254,7 @@ pub struct PauseCurve<'info> {
     #[account(seeds = [CONFIG_SEED], bump = config.bump, has_one = authority)]
     pub config: Account<'info, PlatformConfig>,
     pub authority: Signer<'info>,
-    #[account(mut)]
+    #[account(mut, seeds = [CURVE_SEED, curve.mint.as_ref()], bump = curve.bump)]
     pub curve: Account<'info, BondingCurve>,
 }
 #[account]
@@ -291,4 +291,43 @@ pub enum LaunchpadError {
     #[msg("Insufficient SOL reserve.")] InsufficientSolReserve,
     #[msg("Arithmetic overflow or underflow.")] MathOverflow,
     #[msg("Transaction deadline has passed.")] Expired,
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fee_split_is_separate_and_conserves_gross() {
+        let (platform, creator, net) = fees(1_000_000, 100, 200).unwrap();
+        assert_eq!(platform, 10_000);
+        assert_eq!(creator, 20_000);
+        assert_eq!(net, 970_000);
+        assert_eq!(platform + creator + net, 1_000_000);
+    }
+
+    #[test]
+    fn fees_reject_combined_rate_at_or_above_one_hundred_percent() {
+        assert!(validate_fees(100, 9_900).is_err());
+        assert!(validate_fees(100, 9_899).is_ok());
+    }
+
+    #[test]
+    fn ceil_div_rounds_up() {
+        assert_eq!(ceil_div(10, 3).unwrap(), 4);
+        assert_eq!(ceil_div(12, 3).unwrap(), 4);
+    }
+
+    #[test]
+    fn buy_quote_rounding_preserves_constant_product_floor() {
+        let virtual_sol = 1_000_000u128;
+        let virtual_tokens = 10_000_000u128;
+        let net_input = 100_000u128;
+        let invariant = virtual_sol * virtual_tokens;
+        let new_sol = virtual_sol + net_input;
+        let new_tokens = ceil_div(invariant, new_sol).unwrap();
+        assert!(new_sol * new_tokens >= invariant);
+        assert!(new_tokens < virtual_tokens);
+    }
 }
