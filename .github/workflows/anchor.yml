@@ -1,0 +1,31 @@
+name: Anchor program checks
+
+on:
+  push:
+    paths:
+      - "programs/**"
+      - "Anchor.toml"
+      - ".github/workflows/anchor.yml"
+  pull_request:
+    paths:
+      - "programs/**"
+      - "Anchor.toml"
+      - ".github/workflows/anchor.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install Solana and Anchor
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install 0.31.1
+          avm use 0.31.1
+      - name: Build Anchor program
+        run: anchor build
+      - name: Rust tests
+        run: cargo test --workspace
